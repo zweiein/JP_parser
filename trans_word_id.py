@@ -11,7 +11,7 @@ import time
 """
 
 讀取此路徑下的所有07-01.sa.txt （日期.sa.txt）
-斷句處理後產生新的日期.sa.txt
+根據斷句的結果產生word_id的對應表
 
 """
 
@@ -225,6 +225,37 @@ def FilterSpecialToken(this_sentence):
 #end FilterSpecialToken()
 
 
+def AppearInDict(token, token_id_dictionary):
+#檢查token是否出現在token_id_dictionary，有的話回傳index；否則回傳－1
+    for dic_index in range(0, len(token_id_dictionary)) :
+        if token_id_dictionary[dic_index] == token:
+            return dic_index
+    #end for all tokens in dict
+    return -1
+#end AppearInDict()
+
+
+def CreateWordIdDictionary(tokens_list, token_id_dictionary):
+#需自動檢查該token是否出現在字典中，並回傳轉換成id的token list
+    token_to_id_list = []
+    for token in tokens_list:
+        if len(token) > 0 :
+
+            index_of_token_in_dict = AppearInDict(token, token_id_dictionary)
+
+            if index_of_token_in_dict != -1: #目前的token，詞典裡也有
+                token_to_id_list.append(index_of_token_in_dict)
+
+            #end if this token in dict
+            else : # 目前的token不在詞典裡, 加入詞典並回傳index
+                token_id_dictionary.append(token)
+                token_to_id_list.append(len(token_id_dictionary))
+            #end else not in dict
+        #end if token is empty
+    #end for
+    return token_to_id_list
+#end CreateWordIdDictionary()
+
 
 def ReadThisFile(path_filename):
     fp = open(path_filename, 'r')
@@ -251,6 +282,11 @@ if __name__ == '__main__':
     #dir_names = ['07-04']
 
     sentence_line_num = ''
+    token_id_dictionary = [] #index就是word id
+
+    sa_txt_file_names = reversed(sa_txt_file_names)
+    #sa_txt_file_names = sa_txt_file_names[20:len(sa_txt_file_names)]
+    #dir_names = dir_names[20:len(dir_names)]
 
     #開始斷句及寫入檔案：utf8格式
     for this_doc in sa_txt_file_names:
@@ -273,11 +309,15 @@ if __name__ == '__main__':
             processed_normal_sentence = FilterSpecialToken(actual_sentence)
             finished_broken_sentence = jp_parser.JpParser(processed_normal_sentence)
 
+            #TODO: 將斷詞結果轉換成word id，並產生“word id的對照文件”及產生“以word id取代日文的document檔”；//還要提供word id to日文字的function
+            # CreateWordIdDictionary(tokens_list, token_id_dictionary) #需自動檢查該token是否出現在字典中，並回傳轉換成id的token list
+            finished_broken_sentence_to_word_id = CreateWordIdDictionary(finished_broken_sentence, token_id_dictionary)
+
             wp.write(sentence_line_num)
             wp.write(' ')
 
-            for tokens in finished_broken_sentence:
-                wp.write(tokens)
+            for tokens in finished_broken_sentence_to_word_id:
+                wp.write(str(tokens))
                 wp.write(' ')
             #end for tokens
 
@@ -286,5 +326,13 @@ if __name__ == '__main__':
         wp.close()
 
     #end for files
+
+    wp = open(output_path+'word_id_list.txt', 'w')
+
+    for i in range(0, len(token_id_dictionary)):
+        wp.write(str(i) + '\t' + token_id_dictionary[i] )
+        wp.write('\n')
+    #end for
+    wp.close()
 
 #end if __name__ == '__main__'
