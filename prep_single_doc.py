@@ -254,7 +254,7 @@ if __name__ == '__main__':
     #processed_normal_sentences = FilterSpecialToken(splited_tokens_by_enter[8]) #397 45
 
 
-    dir_names = ['07-01']
+    dir_names = ['13-02']
     sa_txt_file_names = [dir_names[0]+'.sa.txt']
 
     splited_tokens_by_enter = ReadThisFile(path+dir_names[0]+'/'+sa_txt_file_names[0])
@@ -262,54 +262,40 @@ if __name__ == '__main__':
     print path+dir_names[0]+'/'+sa_txt_file_names[0]
 
 
-    for i in range(0, len(splited_tokens_by_enter)):
-        wp = open(output_path+sa_txt_file_names[0], 'w')
+    #開始斷句及寫入檔案：utf8格式
+    for this_doc in sa_txt_file_names:
+        #目前讀入了一篇文章，先用換行符號把文章切成句子
+        split_doc_to_sentences_by_enter = ReadThisFile(path + this_doc[0:5] + '/' + this_doc)
+        wp = open(output_path+this_doc, 'w')
 
-        for this_sentence in range(0, len(sa_txt_file_names[0])):
-            sentence_line_num = splited_tokens_by_enter[this_sentence][0:5]
-            print sentence_line_num
-            length = len(splited_tokens_by_enter[this_sentence])
-            actual_sentence = splited_tokens_by_enter[this_sentence][6:length]
+        for this_sentence in split_doc_to_sentences_by_enter:
+            #句子編號額外拿出來，不參與斷句；如果這個句子莫名其妙連編號也沒有，就不玩了
+            if len(this_sentence) > 4:
+                sentence_line_num = this_sentence[0:5]
+            else :
+                break
 
+            #把“目前這個doc中的目前這一句”，除了句子編號的部分拿出來
+            length = len(this_sentence)
+            actual_sentence = this_sentence[6:length]
+
+            #拿出來的未編號部分才是句子的本體，丟進去斷詞
             processed_normal_sentence = FilterSpecialToken(actual_sentence)
-            print '    ', processed_normal_sentence
             finished_broken_sentence = jp_parser.JpParser(processed_normal_sentence)
-
-            #print '        ', finished_broken_sentence
 
             wp.write(sentence_line_num)
             wp.write(' ')
 
-            for tokens in range(0, len(finished_broken_sentence)):
-                wp.write(finished_broken_sentence[tokens])
+            for tokens in finished_broken_sentence:
+                wp.write(tokens)
                 wp.write(' ')
             #end for tokens
 
-            #print '!!! finish'
             wp.write('\n')
         #end for sentences
         wp.close()
 
-    #(F え)デコーダは(F ま)(A (W ジュリアス;ジュリウス);Ｊｕｌｉｕｓ)で(F えーと)音響モデルトライフォンで言語モデルは
-    #デコーダはジュリウス;Ｊｕｌｉｕｓ)で音響モデルトライフォンで言語モデルは
-
-    #print FilterSpecialToken(splited_tokens_by_enter[276]) #397 45
-
-
-
-    '''
-    for element in  splited_tokens:
-        temp_token_list = jp_parser.JpParser(element)
-        for i in range(0, len(temp_token_list)):
-            print temp_token_list[i]
-
-    #for name in sa_txt_file_names:
-    '''
-
-    #    break
-    #end for all filenames
-
-
+    #end for files
 
 
 #end if __name__ == '__main__'
