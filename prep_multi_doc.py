@@ -273,8 +273,8 @@ if __name__ == '__main__':
             processed_normal_sentence = FilterSpecialToken(actual_sentence)
             finished_broken_sentence = jp_parser.JpParser(processed_normal_sentence)
 
-            wp.write(sentence_line_num)
-            wp.write(' ')
+            #wp.write(sentence_line_num)
+            #wp.write(' ')
 
             for tokens in finished_broken_sentence:
                 wp.write(tokens)

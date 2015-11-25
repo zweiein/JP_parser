@@ -114,12 +114,12 @@ if __name__ == '__main__':
 
             #TODO: 將斷詞結果轉換成word id，並產生“word id的對照文件”及產生“以word id取代日文的document檔”；//還要提供word id to日文字的function
             # CreateWordIdDictionary(tokens_list, token_id_dictionary) #需自動檢查該token是否出現在字典中，並回傳轉換成id的token list
-            finished_broken_sentence_to_word_id = CreateWordIdDictionary(finished_broken_sentence, token_id_dictionary)
+            #finished_broken_sentence_to_word_id = CreateWordIdDictionary(finished_broken_sentence, token_id_dictionary)
 
             #wp.write(sentence_line_num)
             #wp.write(' ')
 
-            for tokens in finished_broken_sentence_to_word_id:
+            for tokens in finished_broken_sentence:
                 wp.write(str(tokens))
                 wp.write(' ')
             #end for tokens
